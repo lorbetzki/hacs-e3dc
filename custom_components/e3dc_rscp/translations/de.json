@@ -918,6 +918,20 @@
                 }
             }
         },
+        "set_wallbox_min_charge_current": {
+            "name": "Minimalen Wallbox-Ladestrom setzen",
+            "description": "Setzt den minimalen Ladestrom der Wallbox.",
+            "fields": {
+                "device_id": {
+                    "name": "E3DC-Geräte-ID",
+                    "description": "E3DC-Geräte-ID, entweder aus dem YAML-Modus der Weboberfläche oder aus der URL der Geräteseite."
+                },
+                "min_charge_current": {
+                    "name": "Minimaler Ladestrom (A)",
+                    "description": "Minimal erlaubter Ladestrom der Wallbox in Ampere."
+                }
+            }
+        },
         "manual_charge": {
             "name": "Manuelles Laden steuern",
             "description": "Startet oder stoppt das manuelle Laden. Eine Lademenge von null stoppt einen laufenden Ladevorgang. Nutzung auf eigenes Risiko: Umwandlungsverluste, Batterieverschleiß, gesetzliche Vorgaben und die E3DC-Garantie beachten. Die Aktion ist begrenzt (etwa einmal alle paar Stunden).",

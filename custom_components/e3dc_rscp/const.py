@@ -99,6 +99,7 @@ SERVICE_CLEAR_POWER_LIMITS = "clear_power_limits"
 SERVICE_SET_POWER_LIMITS = "set_power_limits"
 SERVICE_MANUAL_CHARGE = "manual_charge"
 SERVICE_SET_WALLBOX_MAX_CHARGE_CURRENT = "set_wallbox_max_charge_current"
+SERVICE_SET_WALLBOX_MIN_CHARGE_CURRENT = "set_wallbox_min_charge_current"
 SERVICE_SET_POWER_MODE = "set_power_mode"
 MAX_WALLBOXES_POSSIBLE = 8  # 8 is the maximum according to RSCP Specification
 

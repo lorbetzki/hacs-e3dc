@@ -158,7 +158,9 @@ class E3DCCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Have a call to autoconf, then connect with it.
         await self.hass.async_add_executor_job(self.proxy.connect)
         await self._async_connect_additional_powermeters()
-        await self._async_identify_pvi_temperatures()
+        self._pvi_temperature_count = await self.hass.async_add_executor_job(
+            self.proxy.get_pvi_temperature_count
+        )
 
         self._mydata["system-derate-percent"] = self.proxy.e3dc.deratePercent
         self._mydata["system-derate-power"] = self.proxy.e3dc.deratePower
@@ -369,30 +371,6 @@ class E3DCCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     raise KeyError(f"Key {key} not found in wallbox with index {index}")
         raise ValueError(f"Wallbox with index {index} not found")
 
-    async def _async_identify_pvis(self) -> list[dict[str, Any]]:
-        """Identify installed PVIs, empty if unsupported (e.g. Farm Controller, #424)."""
-        if self._isFarmController:
-            return []
-        try:
-            return await self.hass.async_add_executor_job(self.proxy.get_pvis)
-        except HomeAssistantError as ex:
-            _LOGGER.warning("Failed to identify PVIs, skipping PVI sensors: %s", ex)
-            return []
-
-    async def _async_identify_pvi_temperatures(self) -> None:
-        """Identify the PVI temperature sensor count, zero if unsupported."""
-        self._pvi_temperature_count = 0
-        if self._isFarmController:
-            return
-        try:
-            self._pvi_temperature_count = await self.hass.async_add_executor_job(
-                self.proxy.get_pvi_temperature_count
-            )
-        except HomeAssistantError as ex:
-            _LOGGER.warning(
-                "Failed to identify PVI temperature sensors, skipping them: %s", ex
-            )
-
     async def _async_connect_additional_powermeters(self) -> None:
         """Identify the installed powermeters and reconnect to E3DC with this config."""
         # TODO: Restructure config so that we are indexed by powemeter ID.
@@ -402,7 +380,9 @@ class E3DCCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Keep discovered PVIs (incl. corrected max string count, see #413)
         # across reconnect, otherwise pye3dc falls back to [{"index": 0}]
         # without a "strings" key.
-        self.proxy.e3dc_config["pvis"] = await self._async_identify_pvis()
+        self.proxy.e3dc_config["pvis"] = await self.hass.async_add_executor_job(
+            self.proxy.get_pvis
+        )
 
         for powermeter in self.proxy.e3dc_config["powermeters"]:
             if powermeter["type"] == PowermeterType.PM_TYPE_ROOT.value:
@@ -1071,7 +1051,7 @@ class E3DCCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Validate the argument
         if current is None or current <= 0:
             raise ServiceValidationError(
-                "async_set_wallbox_max_charge_current must be called with a positive current value."
+                "async_set_wallbox_ must be called with a positive current value."
             )
 
         if wallbox_index < 0 or wallbox_index >= MAX_WALLBOXES_POSSIBLE:
@@ -1105,6 +1085,48 @@ class E3DCCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         _LOGGER.debug("Successfully set the wallbox max charge current to %s", current)
 
+    async def async_set_wallbox_min_charge_current(
+        self, current: int | None, wallbox_index: int
+    ) -> None:
+        """Set the wallbox min charge current."""
+
+        # Validate the argument
+        if current is None or current <= 0:
+            raise ServiceValidationError(
+                "async_set_wallbox_ must be called with a positive current value."
+            )
+
+        if wallbox_index < 0 or wallbox_index >= MAX_WALLBOXES_POSSIBLE:
+            raise ServiceValidationError(
+                "async_set_wallbox_min_charge_current must be called with a valid wallbox id."
+            )
+
+        upperCurrentLimit = self.getWallboxValue(wallbox_index, "upperCurrentLimit")
+        if current > upperCurrentLimit:
+            _LOGGER.warning(
+                "Requested Wallbox current of %s is too high. Limiting current to %s",
+                current,
+                upperCurrentLimit,
+            )
+            current = upperCurrentLimit
+
+        lowerCurrentLimit = self.getWallboxValue(wallbox_index, "lowerCurrentLimit")
+        if current < lowerCurrentLimit:
+            _LOGGER.warning(
+                "Requested Wallbox current of %s is too low. Limiting current to %s",
+                current,
+                lowerCurrentLimit,
+            )
+            current = lowerCurrentLimit
+
+        _LOGGER.debug("Setting wallbox min charge current to %s", current)
+
+        await self.hass.async_add_executor_job(
+            self.proxy.set_wallbox_min_charge_current, current, wallbox_index
+        )
+
+        _LOGGER.debug("Successfully set the wallbox min charge current to %s", current)
+                
     async def async_set_power_limits(
         self, max_charge: int | None, max_discharge: int | None
     ) -> None:

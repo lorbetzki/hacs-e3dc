@@ -17,6 +17,7 @@ from .const import (
     SERVICE_CLEAR_POWER_LIMITS,
     SERVICE_MANUAL_CHARGE,
     SERVICE_SET_WALLBOX_MAX_CHARGE_CURRENT,
+    SERVICE_SET_WALLBOX_MIN_CHARGE_CURRENT,
     SERVICE_SET_POWER_MODE,
     SetPowerMode,
 )
@@ -30,6 +31,7 @@ ATTR_MAX_CHARGE = "max_charge"
 ATTR_MAX_DISCHARGE = "max_discharge"
 ATTR_CHARGE_AMOUNT = "charge_amount"
 ATTR_MAX_CHARGE_CURRENT = "max_charge_current"
+ATTR_MIN_CHARGE_CURRENT = "min_charge_current"
 ATTR_POWER_MODE = "power_mode"
 ATTR_POWER_VALUE = "power_value"
 
@@ -51,6 +53,13 @@ SCHEMA_SET_WALLBOX_MAX_CHARGE_CURRENT = vol.Schema(
     {
         vol.Required(ATTR_DEVICEID): str,
         vol.Optional(ATTR_MAX_CHARGE_CURRENT): vol.All(int, vol.Range(min=0)),
+    }
+)
+
+SCHEMA_SET_WALLBOX_MIN_CHARGE_CURRENT = vol.Schema(
+    {
+        vol.Required(ATTR_DEVICEID): str,
+        vol.Optional(ATTR_MIN_CHARGE_CURRENT): vol.All(int, vol.Range(min=0)),
     }
 )
 
@@ -115,6 +124,16 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         schema=SCHEMA_SET_WALLBOX_MAX_CHARGE_CURRENT,
     )
 
+    async def async_call_set_wallbox_min_charge_current(call: ServiceCall) -> None:
+        await _async_set_wallbox_min_charge_current(hass, call)
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_SET_WALLBOX_MIN_CHARGE_CURRENT,
+        service_func=async_call_set_wallbox_min_charge_current,
+        schema=SCHEMA_SET_WALLBOX_MIN_CHARGE_CURRENT,
+    )
+
     # hass.services.register(DOMAIN, "servicename", lambda, schema)
     async def async_call_set_power_mode(call: ServiceCall) -> None:
         await _async_set_power_mode(hass, call)
@@ -167,7 +186,7 @@ def _resolve_device_id(hass: HomeAssistant, devid: str) -> E3DCCoordinator:
     return coordinator
 
 
-def _resolve_wallbox_id(hass: HomeAssistant, devid: str) -> int | None:
+def _resolve_wallbox_id(hass: HomeAssistant, devid: str, service_name: str) -> int | None:
     """Resolve a device ID to its wallbox ID."""
 
     # Get the coordinator
@@ -178,7 +197,7 @@ def _resolve_wallbox_id(hass: HomeAssistant, devid: str) -> int | None:
     dev: DeviceEntry | None = dev_reg.async_get(devid)
     if dev is None:
         raise HomeAssistantError(
-            f"{SERVICE_SET_WALLBOX_MAX_CHARGE_CURRENT}: Unkown device ID {devid}."
+            f"{service_name}: Unkown device ID {devid}."
         )
     for wallbox in coordinator.wallboxes:
         if (
@@ -188,7 +207,7 @@ def _resolve_wallbox_id(hass: HomeAssistant, devid: str) -> int | None:
             return wallbox["index"]
 
     raise HomeAssistantError(
-        f"{SERVICE_SET_WALLBOX_MAX_CHARGE_CURRENT}: Could not find a Wallbox Index for device ID {devid}."
+        f"{service_name}: Could not find a Wallbox Index for device ID {devid}."
     )
 
 
@@ -201,7 +220,7 @@ async def _async_set_wallbox_max_charge_current(
         hass, call.data.get(ATTR_DEVICEID)
     )
 
-    wallbox_index: int | None = _resolve_wallbox_id(hass, call.data.get(ATTR_DEVICEID))
+    wallbox_index: int | None = _resolve_wallbox_id(hass, call.data.get(ATTR_DEVICEID), SERVICE_SET_WALLBOX_MAX_CHARGE_CURRENT)
 
     if wallbox_index is None:
         raise ServiceValidationError(
@@ -214,6 +233,30 @@ async def _async_set_wallbox_max_charge_current(
         )
     await coordinator.async_set_wallbox_max_charge_current(
         current=max_charge_current, wallbox_index=wallbox_index
+    )
+
+async def _async_set_wallbox_min_charge_current(
+    hass: HomeAssistant, call: ServiceCall
+) -> None:
+    """Extract service information and relay to coordinator."""
+
+    coordinator: E3DCCoordinator = _resolve_device_id(
+        hass, call.data.get(ATTR_DEVICEID)
+    )
+
+    wallbox_index: int | None = _resolve_wallbox_id(hass, call.data.get(ATTR_DEVICEID), SERVICE_SET_WALLBOX_MIN_CHARGE_CURRENT)
+
+    if wallbox_index is None:
+        raise ServiceValidationError(
+            f"{SERVICE_SET_WALLBOX_MIN_CHARGE_CURRENT}: Service needs to be executed for a E3DC Wallbox!"
+        )
+    min_charge_current: int | None = call.data.get(ATTR_MIN_CHARGE_CURRENT)
+    if min_charge_current is None:
+        raise ServiceValidationError(
+            f"{SERVICE_SET_WALLBOX_MIN_CHARGE_CURRENT}: Need to set {ATTR_MIN_CHARGE_CURRENT}"
+        )
+    await coordinator.async_set_wallbox_min_charge_current(
+        current=min_charge_current, wallbox_index=wallbox_index
     )
 
 

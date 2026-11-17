@@ -55,6 +55,25 @@ set_wallbox_max_charge_current:
           mode: box
           step: 1
 
+set_wallbox_min_charge_current:
+  fields:
+    device_id:
+      required: true
+      example: "64d3b74a1bcf319288844ff9e93e4010"
+      selector:
+        device:
+          filter:
+            integration: e3dc_rscp
+    min_charge_current:
+      required: false
+      example: "6"
+      selector:
+        number:
+          min: 0
+          unit_of_measurement: A
+          mode: box
+          step: 1
+
 manual_charge:
   fields:
     device_id:

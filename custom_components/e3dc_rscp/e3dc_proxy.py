@@ -734,6 +734,31 @@ class E3DCProxy:
         )
 
     @e3dc_call
+    def set_wallbox_min_charge_current(
+        self, min_charge_current: int, wallbox_index: int
+    ) -> bool:
+        """Set the minimum charge current of the wallbox via RSCP protocol locally.
+
+        Args:
+            min_charge_current (int): minimum allowed charge current in A
+            wallbox_index (Optional[int]): index of the requested wallbox
+
+        Returns:
+            True if success (wallbox has understood the request, but might have clipped the value)
+            False if error
+
+        """
+        _LOGGER.debug(
+            "Wallbox %s: Setting min_charge_current to %s",
+            wallbox_index,
+            min_charge_current,
+        )
+
+        return self.e3dc.set_wallbox_min_charge_current(
+            min_charge_current=min_charge_current, wbIndex=wallbox_index, keepAlive=True
+        )
+
+    @e3dc_call
     def set_battery_before_car_mode(self, mode: bool) -> bool:
         """Set the battery before car mode."""
         _LOGGER.debug("Setting battery before car mode to %s", mode)

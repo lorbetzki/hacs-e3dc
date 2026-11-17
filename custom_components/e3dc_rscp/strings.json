@@ -840,6 +840,20 @@
         }
       }
     },
+    "set_wallbox_min_charge_current": {
+      "name": "Set Wallbox Charge Minimum",
+      "description": "Sets the minimum charge limits of the Wallbox",
+      "fields": {
+        "device_id": {
+          "name": "E3DC Device ID",
+          "description": "E3DC Device ID, take it either from the YAML-Mode on the website of out of the URL of the device configuration page."
+        },
+        "min_charge_current": {
+          "name": "Minimum Charging Current (A)",
+          "description": "Minimum allowed Charging via Wallbox in Ampere."
+        }
+      }
+    },
     "manual_charge": {
       "name": "Control manual charging",
       "description": "Starts or stops manual charging, set charge amount to zero to stop charging if it is running. Use this feature at your own risk. Take conversion losses, battery wear local laws/regulations and the E3DC warranty in mind when using this action. There is a rate limit on this call (once every few hours).",
