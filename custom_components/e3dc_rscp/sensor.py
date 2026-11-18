@@ -1386,6 +1386,22 @@ async def async_setup_entry(
             )
         )
 
+        wallbox_min_charge_current_description = E3DCSensorEntityDescription(
+            key=f"{wallbox_key}-min-charge-current",
+            translation_key="wallbox-min-charge-current",
+            icon="mdi:current-ac",
+            native_unit_of_measurement="A",
+            device_class=SensorDeviceClass.CURRENT,
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        entities.append(
+            E3DCSensor(
+                coordinator,
+                wallbox_min_charge_current_description,
+                unique_id,
+                wallbox["deviceInfo"],
+            )
+        )
         wallbox_phases_description = E3DCSensorEntityDescription(
             key=f"{wallbox_key}-phases",
             translation_key="wallbox-phases",

@@ -101,8 +101,31 @@ async def async_setup_entry(
             )
         )
 
-    async_add_entities(entities)
+        wallbox_min_charge_current_limit_description = E3DCNumberEntityDescription(
+            key=f"{wallbox_key}-min-charge-current",
+            translation_key="wallbox-min-charge-current",
+            name="Wallbox Min Charge Current",
+            icon="mdi:current-ac",
+            native_min_value=wallbox["lowerCurrentLimit"],
+            native_max_value=wallbox["upperCurrentLimit"],
+            native_step=1,
+            device_class=NumberDeviceClass.CURRENT,
+            entity_category=EntityCategory.CONFIG,
+            native_unit_of_measurement="A",
+            async_set_native_value_action=lambda coordinator, value, index=wallbox["index"]: (
+                coordinator.async_set_wallbox_min_charge_current(int(value), index)
+            ),
+        )
+        entities.append(
+            E3DCNumber(
+                coordinator,
+                wallbox_min_charge_current_limit_description,
+                unique_id,
+                wallbox["deviceInfo"],
+            )
+        )
 
+    async_add_entities(entities)
 
 class E3DCNumber(CoordinatorEntity, NumberEntity):
     """Custom E3DC Number Implementation."""
