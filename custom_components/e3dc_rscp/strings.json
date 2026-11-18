@@ -689,6 +689,9 @@
       "wallbox-max-charge-current": {
         "name": "Max charge current"
       },
+      "wallbox-min-charge-current": {
+        "name": "Min charge current"
+      },
       "wallbox-phases": {
         "name": "Phases"
       },
@@ -791,6 +794,9 @@
     "number": {
       "wallbox-max-charge-current": {
         "name": "Max charge current"
+      },
+      "wallbox-min-charge-current": {
+        "name": "Min charge current"
       },
       "battery-wallbox-discharge-limit": {
         "name": "Battery-to-Wallbox SOC limit"

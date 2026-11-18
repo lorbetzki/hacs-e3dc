@@ -1402,6 +1402,7 @@ async def async_setup_entry(
                 wallbox["deviceInfo"],
             )
         )
+
         wallbox_phases_description = E3DCSensorEntityDescription(
             key=f"{wallbox_key}-phases",
             translation_key="wallbox-phases",

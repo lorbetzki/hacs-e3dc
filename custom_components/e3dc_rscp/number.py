@@ -127,6 +127,7 @@ async def async_setup_entry(
 
     async_add_entities(entities)
 
+
 class E3DCNumber(CoordinatorEntity, NumberEntity):
     """Custom E3DC Number Implementation."""
 

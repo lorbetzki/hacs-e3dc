@@ -14,14 +14,13 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/torbennehmer/hacs-e3dc/issues",
   "requirements": [
-    "pye3dc>=0.10.0,<0.11"
-  ],
+    "git+https://github.com/lorbetzki/python-e3dc.git@feat/wallbox-min-charge-current#egg=pye3dc"  ],
   "ssdp": [
     {
       "manufacturer": "E3DC",
       "deviceType": "urn:schemas-upnp-org:device:HVAC_System:1"
     }
   ],
-  "version": "4.0.0",
+  "version": "v4.1.0-beta.1",
   "zeroconf": []
 }

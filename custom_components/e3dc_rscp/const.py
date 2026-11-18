@@ -69,6 +69,7 @@ BATTERY_PACK_RAW_SENSORS: tuple[tuple[str, str], ...] = (
     ("fcc", "full-charge-capacity"),
     ("maxBatVoltage", "max-battery-voltage"),
     ("maxChargeCurrent", "max-charge-current"),
+    ("minChargeCurrent", "min-charge-current"),
     ("maxDischargeCurrent", "max-discharge-current"),
     ("maxDcbCellTemp", "max-dcb-cell-temperature"),
     ("minDcbCellTemp", "min-dcb-cell-temperature"),

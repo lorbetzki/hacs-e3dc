@@ -783,6 +783,9 @@
             "wallbox-max-charge-current": {
                 "name": "Maximaler Ladestrom"
             },
+            "wallbox-min-charge-current": {
+                "name": "Minimaler Ladestrom"
+            },
             "wallbox-phases": {
                 "name": "Phasen"
             },
@@ -869,6 +872,9 @@
         "number": {
             "wallbox-max-charge-current": {
                 "name": "Maximaler Ladestrom"
+            },
+           "wallbox-min-charge-current": {
+                "name": "Minimaler Ladestrom"
             },
             "battery-wallbox-discharge-limit": {
                 "name": "SOC-Grenze Batterie für Wallbox"
